@@ -150,6 +150,7 @@ function handleVarDec(statement, locals) {
         var newValue = '';
         if (countOld < globalsOutIndex) { //if local var (inside the function)
             newValue = insertLocal(statement.Name, statement.Value + '', finalCode, locals);
+            newValue=calculate(newValue);
             locals.set(statement.Name + '', newValue);}
         else { //if AFTER the function - end globals
             finalCode.push({Line: code[countOld]});
@@ -158,8 +159,8 @@ function handleVarDec(statement, locals) {
     else { //outside the function - before the function
         globals.set(statement.Name + '', statement.Value);
         finalCode.push({Line: code[countOld]});
-        countOld++;
-    }}
+        countOld++;   }}
+
 
 //2
 function handleElse(statement, locals){
@@ -532,19 +533,31 @@ function updateLineLocal(currentLine,locals,check){
         replaceIndex = currentLine.indexOf('[');
         currentLine = currentLine.substring(0, replaceIndex) + updatedArryVars +currentLine.substring(currentLine.lastIndexOf(']')+1);
     }
-
     if (locals.has(check) ) {
         replaceIndex = currentLine.indexOf(check);
         var newVar = locals.get(check);
         // if (newVar!='0')
         currentLine = currentLine.substring(0, replaceIndex) + '('+newVar +')' +currentLine.substring(replaceIndex + check.length);
-        //  else
-        // currentLine=currentLine.substring(0, replaceIndex)+currentLine.substring(replaceIndex + check.length);
     }
-    return currentLine;
 
+    return currentLine;
 }
 
+function calculate(value){
+    vars=[];
+    if (value!='') {
+        valueVars[esprima.parseScript(value + '').body[0].expression.type](esprima.parseScript(value + '').body[0].expression);
+        let allNumber = true;
+        for (let i = 0; i < vars.length ; i++) {
+            if (!isFinite(vars[i])) //if not a number
+                allNumber = false;
+        }
+        if (allNumber == true)
+            value = eval(value + '');
+    }
+    vars=[];
+    return value;
+}
 function handleArrayVars(check,locals){
     if (isArray(check)){
         let arr=check.substring(1,check.length-1);
@@ -622,6 +635,7 @@ function binaryarr(arrValue,locals){
 
 function assignmentLocal(name, value, locals){
     vars=[];
+    value=escodegen.generate(esprima.parseScript(value+'').body[0].expression);
     value=value.replace(/\s/g, '');
     valueVars[esprima.parseScript(value+'').body[0].expression.type](esprima.parseScript(value+'').body[0].expression);
     for (let i=0; i<vars.length;i++){
@@ -638,8 +652,8 @@ function assignmentLocal(name, value, locals){
     }
     value=value.replace(/\s/g, '');
     countOld++;
-    return value;
-}
+    return value; }
+
 
 //update value line
 function updateAssNewValue(check,locals,value,name){
@@ -876,6 +890,7 @@ function conditionResult(condition){
     return eval(condition); //true or false
 }
 
+
 function binaryCondition(parsedCond){
     var left = (parsedCond.body)[0].expression.left;
     var right = (parsedCond.body)[0].expression.right;
@@ -903,7 +918,7 @@ function IdentifierCondition(parsedCond){
         for (let [k, v] of globals) {
             parsedCond.name=checkIfString(parsedCond.name);
             if (parsedCond.name==k){
-                parsedCond.name = v;
+                parsedCond.name = '('+v+')';
                 parsedCond.name=addSlash(parsedCond.name); //if string-> add '/'
             }
         }
@@ -1014,7 +1029,7 @@ function checkValueType(side, k,v) {
     if (side.type == 'Identifier' ) {
         side.name=checkIfString(side.name);
         if (side.name==k){
-            side.name = v;
+            side.name = '('+v+')';
             side.name=addSlash(side.name); //if string-> replace "" with ''
             side=IdentiferIsNowComputed(side,k,v);
         }
