@@ -975,6 +975,34 @@ describe('17', () => {
 
         );
     });
+    it('is substituting update expression correctly', () => {
+        let codeToParse=
+            'function foo(x){\n' +
+            'let i=0;\n' +
+            'x++;\n' +
+            'i--;\n' +
+            'if (x==2)\n' +
+            'return true;\n' +
+            'else if (i==-1)\n' +
+            'return false;\n' +
+            'else{\n' +
+            '}\n' +
+            '}'
+        let table =parseCode(codeToParse); //make table
+        assert.equal(
+            convertToString(symbolicSubstitutionn(codeToParse,'2',table)),
+            'function foo(x){\n' +
+            'x++;\n' +
+            'if (x == 2)\n' +
+            'return true;\n' +
+            'else if (0-1 == -1)\n' +
+            'return false;\n' +
+            'else{\n' +
+            '}\n' +
+            '}'
+
+        );
+    });
 
 
 

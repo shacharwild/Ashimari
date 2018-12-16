@@ -31,7 +31,8 @@ const statementType = {
     'if statement': handleIf,
     'else if statement': handleIf,
     'return statement': handleReturn,
-    'assignment expression': handleAssignment
+    'assignment expression': handleAssignment,
+    'update expression': handleUpdate
 };
 
 const arrVarType = {
@@ -269,6 +270,27 @@ function handleIf(statement, locals){
     bodyLines(endBlock, newLocals);
 
 }
+
+//7
+function handleUpdate(statement,locals){
+    let operator='';
+    if (statement.Value.includes('+'))
+        operator='+';
+    else
+        operator='-';
+
+    if (locals.has(statement.Name)){ //left is local
+        let right=locals.get(statement.Name)+operator+'1';
+        locals.set(statement.Name, right);
+    }
+    else { //left is global
+        let right=globals.get(statement.Name)+operator+'1';
+        globals.set(statement.Name,right);
+        finalCode.push({Line: code[countOld]});
+    }
+    countOld++;
+}
+
 
 function findNewBlock() {
     var currentLine=code[countOld];
