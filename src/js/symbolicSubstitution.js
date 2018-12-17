@@ -12,7 +12,7 @@ let countOld;
 let funcFlag=false; //checks if in function
 let countInitVars; //for cases such as: let a,b,c
 let newVarLine;
-let operators='/+-* ';
+//let operators='/+-* ';
 let kaleidoStar=[];
 
 let ifElseLines = new Map(); // <number of line, true/false>
@@ -38,7 +38,7 @@ const statementType = {
 const arrVarType = {
     'MemberExpression' : computedArr,
     'Identifier': IdentifierArr,
-    //'BinaryExpression': binaryarr,
+    'BinaryExpression': binaryarr,
     'Literal': literalArr
 };
 
@@ -221,11 +221,11 @@ function handleAssignment(statement, locals){
 
 //check if leftSide is computedValue
 function checkIfComputed(value){
-    if (canBeparsed(value)) {
-        var parsedValue = esprima.parseScript(value + '');
-        if (parsedValue.body[0].expression.type=='MemberExpression')
-            return true;
-    }
+    //   if (canBeparsed(value)) {
+    var parsedValue = esprima.parseScript(value + '');
+    if (parsedValue.body[0].expression.type=='MemberExpression')
+        return true;
+    // }
     return false;
 }
 
@@ -564,10 +564,10 @@ function handleArrayVars(check,locals){
         arr=arr.split(',');
         for (let i=0; i<arr.length; i++){
             // arr[i]
-            if (canBeparsed(arr[i])==true){
-                let parsedArrValue = esprima.parseScript(arr[i]+'').body[0].expression;
-                arr[i]=arrVarType[parsedArrValue.type](parsedArrValue,locals); //handle type of array's var
-            }
+            //  if (canBeparsed(arr[i])==true){
+            let parsedArrValue = esprima.parseScript(arr[i]+'').body[0].expression;
+            arr[i]=arrVarType[parsedArrValue.type](parsedArrValue,locals); //handle type of array's var
+            //  }
         }
         return converArrToString(arr);
     }
@@ -618,7 +618,7 @@ function literalArr(arrValue, locals){
     return arrValue.raw;
 }
 
-/*
+
 function binaryarr(arrValue,locals){
     let left=arrValue.left;
     let right =arrValue.right;
@@ -630,7 +630,7 @@ function binaryarr(arrValue,locals){
     return newLeft+operator+newRight;
 
 }
-*/
+
 
 
 function assignmentLocal(name, value, locals){
@@ -693,42 +693,42 @@ function checkIfContainsLeft(name,newValue){
 //check if check is computeted value - (x[5]):
 function checkComputedValue(value, locals) {
 
-    var isLegal = canBeparsed(value);
-    if (isLegal == true) {
-        return handleComputedValue(value, locals);
-    }
-    else {
-        return {computedValue: value, wasReplaced: false};
-    }
+    // var isLegal = canBeparsed(value);
+    //  if (isLegal == true) {
+    return handleComputedValue(value, locals);
+    //  }
+    // else {
+    //     return {computedValue: value, wasReplaced: false};
+    // }
 }
 
-
+/*
 function canBeparsed(value){
     if (operators.includes(value)) //check if value is operator or space
         return false;
     return true;
 
 }
-
+*/
 function handleComputedValue(value,locals){
     var wasReplaced = false;
-    if (esprima.parseScript(value+'').body[0]!=null) {
-        var checkValue = (esprima.parseScript(value+'').body)[0].expression;
-        if (checkValue.type == 'MemberExpression') {
-            var object = checkValue.object.name;
-            var ans=wasReplacedCheck(locals,object,wasReplaced);
-            wasReplaced=ans[0].flag;
-            object=ans[0].objectt;
-            let oldProp=checkValue.property;
-            oldProp = escodegen.generate(oldProp); //convert from JSON to string
-            oldProp=oldProp.replace(/\s/g, ''); //remove revah
-            oldProp=oldProp.replace(';', ''); //remove ';'
-            let newProp=handleCondition(checkValue.property, finalCode,false,locals);
-            newProp=newProp+''.replace(/\s/g, ''); //remove revah
-            newProp=newProp+''.replace(';', ''); //remove ';'
-            if (oldProp!=newProp) {wasReplaced=true;}
-            return {computedValue: object + '[' + newProp + ']', wasReplaced: wasReplaced};}
-        return {computedValue: value, wasReplaced: wasReplaced}; }  }
+    // if (esprima.parseScript(value+'').body[0]!=null) {
+    var checkValue = (esprima.parseScript(value+'').body)[0].expression;
+    if (checkValue.type == 'MemberExpression') {
+        var object = checkValue.object.name;
+        var ans=wasReplacedCheck(locals,object,wasReplaced);
+        wasReplaced=ans[0].flag;
+        object=ans[0].objectt;
+        let oldProp=checkValue.property;
+        oldProp = escodegen.generate(oldProp); //convert from JSON to string
+        oldProp=oldProp.replace(/\s/g, ''); //remove revah
+        oldProp=oldProp.replace(';', ''); //remove ';'
+        let newProp=handleCondition(checkValue.property, finalCode,false,locals);
+        newProp=newProp+''.replace(/\s/g, ''); //remove revah
+        newProp=newProp+''.replace(';', ''); //remove ';'
+        if (oldProp!=newProp) {wasReplaced=true;}
+        return {computedValue: object + '[' + newProp + ']', wasReplaced: wasReplaced};}
+    return {computedValue: value, wasReplaced: wasReplaced};   }
 
 
 
@@ -769,13 +769,13 @@ function returnStatement(value, locals){
 }
 
 function addFunctionDec(flag, finalCode){
-    if (flag==false) {
-        let funcLine=code[countOld];
-        finalCode.push({Line: funcLine});
-        countOld++;
-        countEndFunction(); //sets end of function index
-        insertOutsideGlobals(); //add end function globals declartions
-    }
+    // if (flag==false) {
+    let funcLine=code[countOld];
+    finalCode.push({Line: funcLine});
+    countOld++;
+    countEndFunction(); //sets end of function index
+    insertOutsideGlobals(); //add end function globals declartions
+    //  }
     return true;
 }
 
@@ -980,14 +980,14 @@ function checkIfArray(object){
 
 function makeArray(arr){
     let arrToReturn = [];
-    if (esprima.parseScript(arr+'').body[0].expression.type=='ArrayExpression') {
-        let parsedArray = esprima.parseScript(arr + '').body[0].expression;
-        for (let i = 0; i < parsedArray.elements.length; i++) {
-            var toAdd=escodegen.generate(parsedArray.elements[i]);
-            toAdd=toAdd.replace(/\s/g, '');
-            arrToReturn.push(escodegen.generate(parsedArray.elements[i]));
-        }
+    //if (esprima.parseScript(arr+'').body[0].expression.type=='ArrayExpression') {
+    let parsedArray = esprima.parseScript(arr + '').body[0].expression;
+    for (let i = 0; i < parsedArray.elements.length; i++) {
+        var toAdd=escodegen.generate(parsedArray.elements[i]);
+        toAdd=toAdd.replace(/\s/g, '');
+        arrToReturn.push(escodegen.generate(parsedArray.elements[i]));
     }
+    // }
 
     return arrToReturn;
 }
@@ -1083,19 +1083,19 @@ function IdentifierIsNowIdentifier(side){
 }
 
 function checkIfBinary(value){
-    if (canBeparsed(value)) {
-        var parsedValue = esprima.parseScript(value + '');
-        if (parsedValue.body[0].expression.type=='BinaryExpression')
-            return true;
-    }
+    // if (canBeparsed(value)) {
+    var parsedValue = esprima.parseScript(value + '');
+    if (parsedValue.body[0].expression.type=='BinaryExpression')
+        return true;
+    // }
 }
 
 function checkIfIdentifier(value){
-    if (canBeparsed(value)) {
-        var parsedValue = esprima.parseScript(value + '');
-        if (parsedValue.body[0].expression.type=='Identifier')
-            return true;
-    }
+    // if (canBeparsed(value)) {
+    var parsedValue = esprima.parseScript(value + '');
+    if (parsedValue.body[0].expression.type=='Identifier')
+        return true;
+    //  }
 }
 
 function addSlash(value){

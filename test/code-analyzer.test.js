@@ -1003,7 +1003,21 @@ describe('17', () => {
 
         );
     });
+    it('is substituting array with binary expression index inside correctly', () => {
+        let codeToParse=
+            'function foo(){\n' +
+            'let temp=[sora,1+1];\n' +
+            'return temp[1];\n' +
+            '}'
+        let table =parseCode(codeToParse); //make table
+        assert.equal(
+            convertToString(symbolicSubstitutionn(codeToParse,'',table)),
+            'function foo(){\n' +
+            'return ([sora,1+1][1]);\n' +
+            '}'
 
+        );
+    });
 
 
 
