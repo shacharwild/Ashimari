@@ -33,6 +33,7 @@ let mix=false;
 let mixFuncIndex=0;
 let wasinFunction;
 let globalsInEnd=false;
+let rootStatements=[]; //for the globals
 
 function startBuildingTable(parsedCode){
     result = [];
@@ -41,6 +42,7 @@ function startBuildingTable(parsedCode){
     wasinFunction=false;
     globalsInEnd=false;
     wasinFunction=false;
+    rootStatements=[];
     if ((parsedCode.body)[0].type=='FunctionDeclaration') { //function declaration
         headerLines(parsedCode);
         bodyLines((parsedCode.body)[0].body.body);
@@ -219,7 +221,8 @@ function bodyLines(statement)
     let i=0;
     if (num_statements!=null) {
         if (mix==true) {
-            bodyLinesMix(num_statements,body);
+            rootStatements=statement;
+            i=bodyLinesMix(num_statements,body);
         }
         else
             for (i = 0; i < num_statements ; i++) {
@@ -233,20 +236,26 @@ function bodyLines(statement)
 }
 
 function bodyLinesMix( num_statements,body){
-    for (let i = 0; i < num_statements && i <= mixFuncIndex; i++) {
+    let i=0;
+    for ( i = 0; i < num_statements && i <= mixFuncIndex; i++) {
         checkStatement(body[i]);
     }
+    return i;
 }
 function bodyLinesContinue(statement,i,num_statements){
     if (mix==true && i<=num_statements  && wasinFunction==false) { //if itx mix go to the function declaration..
         wasinFunction=true;
+        mix=false;
         bodyLines(statement[mixFuncIndex].body.body);
     }
-    if ( globalsInEnd==true) //keep checking the statements OUTSIDE the function
-        checkEndGlobals(statement,mixFuncIndex+1, num_statements);
+    isEndGlobals(statement);
 
 }
 
+function isEndGlobals(statement){
+    if ( globalsInEnd==true && statement==rootStatements) //keep checking the statements OUTSIDE the function
+        checkEndGlobals(rootStatements,mixFuncIndex+1, rootStatements.length);
+}
 function checkEndGlobals(statement,globalIndex, num_statements){
     for (let i = globalIndex; i < num_statements ; i++) {
         checkStatement(statement[i]);

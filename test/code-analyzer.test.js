@@ -195,7 +195,7 @@ describe('13', () => {
         let table =parseCode(codeToParse); //make table
         assert.equal(
             convertToString(symbolicSubstitutionn(codeToParse,'1,2',table)),'function func(x,y){\n' +
-            'y=((2));\n' +
+            'y=2;\n' +
             '}'
 
         );
@@ -701,7 +701,7 @@ describe('17', () => {
             'arr[0]=([1,2][0]);\n' +
             'if (arr[0] == 1)\n' +
             '{\n' +
-            'if (arr[(0)+1] > 0)\n' +
+            'if (arr[1] > 0)\n' +
             '{\n' +
             'return true;\n' +
             '}\n' +

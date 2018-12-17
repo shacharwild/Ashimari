@@ -208,9 +208,9 @@ function handleAssignment(statement, locals){
             replaceArrayValue(computedLeft, newValue,globals, arrName);
             finalCode.push({Line:computedLeft+'='+newValue+';'});  }
         if (locals.has(arrName)) //if left is local
-            replaceArrayValue(computedLeft,newValue,locals, arrName);
-    }
+            replaceArrayValue(computedLeft,newValue,locals, arrName);   }
     else { //if left is not computed value, only regular var -> x=5;
+        newValue=calculate(newValue);
         if (globals.has(statement.Name)) {
             finalCode.push({Line: assStart + '=' + newValue + ';'});
             globals.set(statement.Name + '', newValue); }
@@ -644,19 +644,19 @@ function assignmentLocal(name, value, locals){
         var checkk = checkComputedValue(check+'', locals);
         if (checkk.wasReplaced==true) { //if it was a computed value and was replaced
             value = insertNewComputedValue(checkk.computedValue, value, replaceComputedIndex, vars[i]);
-            continue;
-        }
+            continue; }
         else
             check=vars[i]+'';
-        value = updateAssNewValue(check,locals,value,name); //update value line
-    }
+        value = updateAssNewValue(check,locals,value);   }//update value line
+    if (globals.has(name)) {
+        value = checkIfContainsLeft(name, value);}
     value=value.replace(/\s/g, '');
     countOld++;
     return value; }
 
 
 //update value line
-function updateAssNewValue(check,locals,value,name){
+function updateAssNewValue(check,locals,value){
     var replaceIndex=0;
     let updatedArryVars=handleArrayVars(check,locals);
     if (updatedArryVars!=check){ //if updated array (new array!=original array)
@@ -666,9 +666,9 @@ function updateAssNewValue(check,locals,value,name){
     if (locals.has(check)){ //definitely not a computeted value
         replaceIndex=value.indexOf(check);
         var newVar = locals.get(check);
-        if (globals.has(name)){
-            newVar=checkIfContainsLeft(name,newVar); //y=y+1 -> replace right y with its real value
-        }
+        // if (globals.has(name)){
+        //    newVar=checkIfContainsLeft(name,newVar); //y=y+1 -> replace right y with its real value
+        // }
         //if (newVar!='0')
         value=value.substring(0, replaceIndex)+'('+newVar+')'+value.substring(replaceIndex+check.length);
         //else
@@ -679,7 +679,7 @@ function updateAssNewValue(check,locals,value,name){
 
 
 function checkIfContainsLeft(name,newValue){
-    var vars = newValue.split(/[\s+)(]+/);
+    var vars = newValue.split(/[\s-+)*(]+/);
     for (let i=0; i<vars.length;i++) {
         let check = vars[i] + '';
         let replaceIndex=newValue.indexOf(check);
