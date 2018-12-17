@@ -219,6 +219,7 @@ function handleAssignment(statement, locals){
         }}}
 
 
+
 //check if leftSide is computedValue
 function checkIfComputed(value){
     //   if (canBeparsed(value)) {
