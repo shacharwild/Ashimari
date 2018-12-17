@@ -12,7 +12,7 @@ let countOld;
 let funcFlag=false; //checks if in function
 let countInitVars; //for cases such as: let a,b,c
 let newVarLine;
-//let operators='/+-* ';
+let operators='/+-* ';
 let kaleidoStar=[];
 
 let ifElseLines = new Map(); // <number of line, true/false>
@@ -693,26 +693,26 @@ function checkIfContainsLeft(name,newValue){
 //check if check is computeted value - (x[5]):
 function checkComputedValue(value, locals) {
 
-    // var isLegal = canBeparsed(value);
-    //  if (isLegal == true) {
-    return handleComputedValue(value, locals);
-    //  }
-    // else {
-    //     return {computedValue: value, wasReplaced: false};
-    // }
+    var isLegal = canBeparsed(value);
+    if (isLegal == true) {
+        return handleComputedValue(value, locals);
+    }
+    else {
+        return {computedValue: value, wasReplaced: false};
+    }
 }
 
-/*
+
 function canBeparsed(value){
     if (operators.includes(value)) //check if value is operator or space
         return false;
     return true;
 
 }
-*/
+
 function handleComputedValue(value,locals){
     var wasReplaced = false;
-    // if (esprima.parseScript(value+'').body[0]!=null) {
+    //if (esprima.parseScript(value+'').body[0]!=null) {
     var checkValue = (esprima.parseScript(value+'').body)[0].expression;
     if (checkValue.type == 'MemberExpression') {
         var object = checkValue.object.name;
@@ -728,7 +728,7 @@ function handleComputedValue(value,locals){
         newProp=newProp+''.replace(';', ''); //remove ';'
         if (oldProp!=newProp) {wasReplaced=true;}
         return {computedValue: object + '[' + newProp + ']', wasReplaced: wasReplaced};}
-    return {computedValue: value, wasReplaced: wasReplaced};   }
+    return {computedValue: value, wasReplaced: wasReplaced};  }
 
 
 

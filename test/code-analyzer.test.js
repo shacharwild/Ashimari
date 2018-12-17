@@ -1018,7 +1018,39 @@ describe('17', () => {
 
         );
     });
+    it('is substituting a whole function block with if statements correctly', () => {
+        let codeToParse=
+            'function foo(x, y, z){\n' +
+            '    let a = x + 1;\n' +
+            '    let b = a + y;\n' +
+            '    let c = 0;\n' +
+            '    \n' +
+            '    if (b < z) {\n' +
+            '        c = c + 5;\n' +
+            '        return x + y + z + c;\n' +
+            '    } else if (b < z * 2) {\n' +
+            '        c = c + x + 5;\n' +
+            '        return x + y + z + c;\n' +
+            '    } else {\n' +
+            '        c = c + z + 5;\n' +
+            '        return x + y + z + c;\n' +
+            '    }\n' +
+            '}'
+        let table =parseCode(codeToParse); //make table
+        assert.equal(
+            convertToString(symbolicSubstitutionn(codeToParse,'1,2,3',table)),
+            'function foo(x, y, z){\n' +
+            '    if ((x+1)+y < z){\n' +
+            '        return ((x+y)+z)+(5);\n' +
+            '    } else if ((x+1)+y < (z * 2)){\n' +
+            '        return ((x+y)+z)+((0)+x+5);\n' +
+            '    } else {\n' +
+            '        return ((x+y)+z)+((0)+z+5);\n' +
+            '    }\n' +
+            '}'
 
+        );
+    });
 
 
 });
